@@ -27,8 +27,7 @@ def display_color(price):
 	else:
 		color = colors['red']
 	
-	blinkt.set_pixel(3, color[0], color[1], color[2])
-	blinkt.set_pixel(4, color[0], color[1], color[2])
+	blinkt.set_all(color[0], color[1], color[2])
 	blinkt.show()
 
 def current_hour_estimate(prices_dict):
@@ -52,11 +51,14 @@ def current_hour_estimate(prices_dict):
 # Main program loop
 
 while True:
+	timeBegin = time.time()
 	r = requests.get(url)
 	prices_dict = r.json()
 	
 	estimate = current_hour_estimate(prices_dict)
 	print("Estimated current hour average at", time.strftime('%I:%M'), "is", round(estimate, 1))
 	display_color(estimate)
+	timeEnd = time.time()
+	timeElapsed = timeEnd - timeBegin
 	
-	time.sleep(299)
+	time.sleep(300 - timeElapsed)
