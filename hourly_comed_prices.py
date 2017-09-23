@@ -8,6 +8,7 @@ url = 'https://rrtp.comed.com/api?type=5minutefeed'
 def display_color(price):
 	'''Display LED colors based on price'''
 	colors = {
+		'blue': [0, 97, 255],
 		'green': [0, 255, 0],
 		'lime green': [128, 255, 0],
 		'yellow': [255, 255, 0],
@@ -16,7 +17,9 @@ def display_color(price):
 		}
 	blinkt.set_brightness(0.1)
 	blinkt.set_clear_on_exit()
-	if price < 2.5:
+	if price < -999:
+		color = colors['blue']
+	elif price < 2.5:
 		color = colors['green']
 	elif price < 3:
 		color = colors['lime green']
@@ -52,11 +55,17 @@ def current_hour_estimate(prices_dict):
 
 while True:
 	timeBegin = time.time()
-	r = requests.get(url)
+	try:
+		r = requests.get(url, timeout=30)
+	except:
+		display_color(-1000)
+		timeEnd = time.time()
+		timeElapsed = timeEnd - timeBegin
+		time.sleep(300 - timeElapsed)
+		continue
 	prices_dict = r.json()
 	
 	estimate = current_hour_estimate(prices_dict)
-	print("Estimated current hour average at", time.strftime('%I:%M'), "is", round(estimate, 1))
 	display_color(estimate)
 	timeEnd = time.time()
 	timeElapsed = timeEnd - timeBegin
